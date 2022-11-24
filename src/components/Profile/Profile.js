@@ -11,6 +11,26 @@ class Profile extends Component {
     };
   }
 
+  onProfileUpdate = data => {
+    fetch(`http://localhost:3000/profile/${this.props.user.id}`, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: window.sessionStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        formInput: data,
+      }),
+    })
+      .then(res => {
+        if (res.status === 200 || res.status === 304) {
+          this.props.toggleModal();
+          this.props.loadUser({ ...this.props.user, ...data });
+        }
+      })
+      .catch(console.log);
+  };
+
   onFormChange = event => {
     switch (event.target.name) {
       case "user-name":
@@ -27,26 +47,8 @@ class Profile extends Component {
     }
   };
 
-  onProfileUpdate = data => {
-    fetch(`http://localhost:3000/profile/${this.props.user.id}`, {
-      method: "post",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: window.sessionStorage.getItem("token"),
-      },
-      body: JSON.stringify({ formInput: data }),
-    })
-      .then(res => {
-        if (res.status === 200 || res.status === 304) {
-          this.props.toggleModal();
-          this.props.loadUser({ ...this.props.user, ...data });
-        }
-      })
-      .catch(console.log);
-  };
-
   render() {
-    const { user } = this.props;
+    const { toggleModal, user } = this.props;
     const { name, age, pet } = this.state;
     return (
       <div className="profile-modal">
@@ -57,8 +59,8 @@ class Profile extends Component {
               className="h3 w3 dib"
               alt="avatar"
             />
-            <h1>{this.state.name}</h1>
-            <h4>{`Images Submitted: ${user.entries}`}</h4>
+            <h1>{name}</h1>
+            <h4>{`Images submitted: ${user.entries}`}</h4>
             <p>{`Member since: ${new Date(
               user.joined
             ).toLocaleDateString()}`}</p>
@@ -68,53 +70,50 @@ class Profile extends Component {
             </label>
             <input
               onChange={this.onFormChange}
-              className="pa2 ba w-100"
-              placeholder={user.name}
               type="text"
               name="user-name"
-              id="name"
+              className="pa2 ba w-100"
+              placeholder={name}
             />
             <label className="mt2 fw6" htmlFor="user-age">
               Age:
             </label>
             <input
               onChange={this.onFormChange}
-              className="pa2 ba w-100"
-              placeholder={user.age}
               type="text"
               name="user-age"
-              id="age"
+              className="pa2 ba w-100"
+              placeholder={age}
             />
             <label className="mt2 fw6" htmlFor="user-pet">
-              Pet:
+              Favourite Pet:
             </label>
             <input
               onChange={this.onFormChange}
-              className="pa2 ba w-100"
-              placeholder={user.pet}
               type="text"
               name="user-pet"
-              id="pet"
+              className="pa2 ba w-100"
+              placeholder={pet}
             />
             <div
               className="mt4"
               style={{ display: "flex", justifyContent: "space-evenly" }}
             >
               <button
-                onClick={() => this.onProfileUpdate({ name, age, pet })}
                 className="b pa2 grow pointer hover-white w-40 bg-light-blue b--black-20"
+                onClick={() => this.onProfileUpdate({ name, age, pet })}
               >
                 Save
               </button>
               <button
                 className="b pa2 grow pointer hover-white w-40 bg-light-red b--black-20"
-                onClick={this.props.toggleModal}
+                onClick={toggleModal}
               >
                 Cancel
               </button>
             </div>
           </main>
-          <div className="modal-close" onClick={this.props.toggleModal}>
+          <div className="modal-close" onClick={toggleModal}>
             &times;
           </div>
         </article>

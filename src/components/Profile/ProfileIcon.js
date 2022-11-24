@@ -15,17 +15,22 @@ class ProfileIcon extends Component {
   }
 
   toggle = () => {
-    this.setState(prevState => ({
-      dropdownOpen: !prevState.dropdownOpen,
-    }));
+    this.setState({
+      dropdownOpen: !this.state.dropdownOpen,
+    });
   };
 
   render() {
     return (
       <div className="pa4 tc">
-        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+        <Dropdown
+          isOpen={this.state.dropdownOpen}
+          toggle={this.toggle}
+          drop="left"
+        >
           <DropdownToggle
             tag="span"
+            onClick={this.toggle}
             data-toggle="dropdown"
             aria-expanded={this.state.dropdownOpen}
           >
@@ -35,16 +40,15 @@ class ProfileIcon extends Component {
               alt="avatar"
             />
           </DropdownToggle>
+          {/* Old <DropdownMenu className='b--transparent shadow-5' style={{marginTop: '20px', backgroundColor: 'rgba(255, 255, 255, 0.5)'}} right> */}
           <DropdownMenu
-            end
-            className="b--transparent shadow-5 mt3"
+            className="b--transparent shadow-5"
             style={{
-              marginTop: "20px",
+              marginLeft: "-6rem",
               backgroundColor: "rgba(255, 255, 255, 0.5)",
-              container: "body",
             }}
           >
-            <DropdownItem onClick={this.props.toggleModal}>
+            <DropdownItem onClick={() => this.props.toggleModal()}>
               View Profile
             </DropdownItem>
             <DropdownItem onClick={() => this.props.onRouteChange("signout")}>

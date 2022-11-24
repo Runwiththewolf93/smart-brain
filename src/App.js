@@ -8,8 +8,8 @@ import Register from "./components/Register/Register";
 import Logo from "./components/Logo/Logo";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import Rank from "./components/Rank/Rank";
-import Modal from "./components/Modal/Modal";
 import Profile from "./components/Profile/Profile";
+import Modal from "./components/Modal/Modal";
 import "./App.css";
 
 const initialState = {
@@ -17,16 +17,16 @@ const initialState = {
   imageUrl: "",
   boxes: [],
   route: "signin",
-  isSignedIn: false,
   isProfileOpen: false,
+  isSignedIn: false,
   user: {
     id: "",
     name: "",
     email: "",
     entries: 0,
     joined: "",
+    age: 0,
     pet: "",
-    age: "",
   },
 };
 
@@ -46,17 +46,17 @@ class App extends Component {
           Authorization: token,
         },
       })
-        .then(res => res.json())
+        .then(response => response.json())
         .then(data => {
           if (data && data.id) {
             fetch(`http://localhost:3000/profile/${data.id}`, {
-              method: "get",
+              method: "GET",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: token,
               },
             })
-              .then(res => res.json())
+              .then(response => response.json())
               .then(user => {
                 if (user && user.email) {
                   this.loadUser(user);
@@ -82,25 +82,22 @@ class App extends Component {
   };
 
   calculateFaceLocation = data => {
-    if (data && data.outputs) {
-      const image = document.getElementById("inputimage");
-      const width = Number(image.width);
-      const height = Number(image.height);
-      return data.outputs[0].data.regions.map(face => {
-        const clarifaiFace = face.region_info.bounding_box;
-        return {
-          leftCol: clarifaiFace.left_col * width,
-          topRow: clarifaiFace.top_row * height,
-          rightCol: width - clarifaiFace.right_col * width,
-          bottomRow: height - clarifaiFace.bottom_row * height,
-        };
-      });
-    }
-    return;
+    const image = document.getElementById("inputimage");
+    const width = Number(image.width);
+    const height = Number(image.height);
+    return data.outputs[0].data.regions.map(face => {
+      const clarifaiFace = face.region_info.bounding_box;
+      return {
+        leftCol: clarifaiFace.left_col * width,
+        topRow: clarifaiFace.top_row * height,
+        rightCol: width - clarifaiFace.right_col * width,
+        bottomRow: height - clarifaiFace.bottom_row * height,
+      };
+    });
   };
 
-  displayFaceBoxes = boxes => {
-    boxes && this.setState({ boxes: boxes });
+  displayFaceBox = boxes => {
+    this.setState({ boxes: boxes });
   };
 
   onInputChange = event => {
@@ -138,7 +135,7 @@ class App extends Component {
             })
             .catch(console.log);
         }
-        this.displayFaceBoxes(this.calculateFaceLocation(response));
+        this.displayFaceBox(this.calculateFaceLocation(response));
       })
       .catch(err => console.log(err));
   };
@@ -149,13 +146,13 @@ class App extends Component {
     } else if (route === "home") {
       this.setState({ isSignedIn: true });
     }
-    this.setState({ route });
+    this.setState({ route: route });
   };
 
   toggleModal = () => {
-    this.setState(prevState => ({
-      ...prevState,
-      isProfileOpen: !prevState.isProfileOpen,
+    this.setState(state => ({
+      ...state,
+      isProfileOpen: !state.isProfileOpen,
     }));
   };
 
@@ -175,8 +172,8 @@ class App extends Component {
             <Profile
               isProfileOpen={isProfileOpen}
               toggleModal={this.toggleModal}
-              loadUser={this.loadUser}
               user={user}
+              loadUser={this.loadUser}
             />
           </Modal>
         )}
